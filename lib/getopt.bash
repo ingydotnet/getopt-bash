@@ -2,6 +2,7 @@
 
 getopt() {
   local opt_spec
+  : "${getopt_spec:=$(cat)}"
   opt_spec=$(
     echo "$getopt_spec" |
       grep -A999999 '^--$' |
@@ -29,11 +30,12 @@ getopt() {
   fi
 
   while IFS= read -r line; do
-    if [[ $line =~ ^([a-zA-Z]+)(,([a-z]+))?(=?)\  ]]; then
+    if [[ $line =~ ^([-a-zA-Z]+)(,([-a-z]+))?(=?)\  ]]; then
       opt_var=option_${BASH_REMATCH[1]}
       if [[ ${BASH_REMATCH[3]} ]]; then
         opt_var=option_${BASH_REMATCH[3]}
       fi
+      opt_var=${opt_var//-/_}
       if [[ -z ${BASH_REMATCH[4]} ]]; then
         printf -v "$opt_var" false
       else
@@ -97,6 +99,8 @@ getopt() {
     if [[ $arg_var =~ ^@ ]]; then
       array=true
       arg_var=${arg_var#@}
+      printf -v "$arg_var"'[0]' xxx
+      unset "$arg_var"'[0]'
     fi
     if [[ $arg_var =~ $re1 ]]; then
       required=true
