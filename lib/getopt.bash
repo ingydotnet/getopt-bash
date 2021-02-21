@@ -1,6 +1,23 @@
 # getopt-long library based around `git rev-parse --parseopt`
 
+# shellcheck disable=2034
+
 getopt() {
+  local spec
+  local opts_prefix=option
+  local args_var=
+  local default_arg='--help'
+  local catch_error=false
+
+
+
+
+  : "${getopt_spec:=${GETOPT_SPEC-}}"
+  [[ $getopt_spec ]] ||
+    getopt_spec=$(cat)
+  [[ $getopt_spec ]] ||
+    die "Variable getopt_spec or GETOPT_SPEC must be defined"
+
   local opt_spec
   : "${getopt_spec:=$(cat)}"
   opt_spec=$(
@@ -94,7 +111,7 @@ getopt() {
   done
 
   local i arg_name arg_var required=false array=false re1='^\+'
-  for arg_name in $getopt_args; do
+  for arg_name in ${getopt_args-}; do
     arg_var=${arg_name//-/_}
     if [[ $arg_var =~ ^@ ]]; then
       array=true
@@ -122,9 +139,10 @@ getopt() {
       die "'$arg_name' is required"
     fi
   done
+
   [[ $# -eq 0 ]] || die "Unexpected arguments: '$*'"
 }
 
-getopt-pager() {
+getopt-pager() (
   less -FRX
-}
+)

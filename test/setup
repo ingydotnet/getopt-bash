@@ -1,0 +1,33 @@
+#!/bash
+# shellcheck disable=1091,2034,2207
+
+setup() {
+  set -eu
+  local root libs
+  root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+  libs=($(find "$root" -name lib -o -name bin))
+  PATH=$(IFS=:; echo "${libs[*]} $PATH")
+  export PATH
+
+  source bash+ :std
+  use Test::More
+  use Getopt
+}
+
+setup
+
+spec1="\
+  foo <options...>
+
+See 'man foo' for more help.
+
+Options:
+--
+ 
+b,bar       Bar bar bar
+q,quux=     Quux quux
+ 
+xxx         Xxx xxx
+yyy=        Yyy yyy
+"
+
